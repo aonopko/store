@@ -1,41 +1,38 @@
-from dotenv import load_dotenv
-from dataclasses import dataclass
-import os
-import path
+from aiogram import Bot, Dispatcher
+from aiogram.enums import ParseMode
 
+import asyncio
+import asyncpg
+from loguru import logger
+from settings import Config, load_config
+from handlers import router_list
 
-load_dotenv()
+async def main():
 
+    logger.info("bot is loading")
+    config: Config = load_config()
+    await asyncpg.connect(f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.db_name}")
+    logger.info("connect to BD")
+    from aiogram.fsm.storage.memory import MemoryStorage
+    storage = MemoryStorage()
+    bot = Bot(config.bot.token, parse_mode=ParseMode.HTML)
+    dp = Dispatcher(storage=storage)
 
-@dataclass
-class Bot:
-    token: str
-    use_redis: bool
+    logger.info("connect routers")
 
+    dp.include_router(*router_list)
 
-@dataclass
-class DB:
-    host: str
-    db_name: str
-    user: str
-    password: str
+    logger.info("bot is starting")
+    try:
+        await dp.start_polling(bot)
+        logger.info("disconnect")
+    finally:
+        await dp.storage.close()
+        await bot.session.close()
+        logger.info("Bot is off")
 
-
-@dataclass
-class Config:
-    bot: Bot
-    db: DB
-
-
-def load_config():
-    # Add some checks here?
-    return Config(
-        bot=Bot(token=os.getenv("BOT_TOKEN"),
-                use_redis=bool(os.getenv("USE_REDIS"))),
-        db=DB(
-            host=os.getenv("DB_HOST"),
-            db_name=os.getenv("DB_NAME"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASS")
-        )
-    )
+if __name__ == '__main__':
+    try:
+        asyncio.run(main())
+    except (KeyboardInterrupt, SystemExit):
+        logger.info("Bot stopped!")
