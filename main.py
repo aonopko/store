@@ -2,16 +2,17 @@ from aiogram import Bot, Dispatcher
 from aiogram.enums import ParseMode
 
 import asyncio
-import asyncpg
 from loguru import logger
 from settings import Config, load_config
 from handlers import router_list
+from settings import ConnectDb
+
 
 async def main():
 
     logger.info("bot is loading")
     config: Config = load_config()
-    await asyncpg.connect(f"postgresql://{config.db.user}:{config.db.password}@{config.db.host}/{config.db.db_name}")
+    ConnectDb.connection
     logger.info("connect to BD")
     from aiogram.fsm.storage.memory import MemoryStorage
     storage = MemoryStorage()
@@ -30,6 +31,7 @@ async def main():
         await dp.storage.close()
         await bot.session.close()
         logger.info("Bot is off")
+
 
 if __name__ == '__main__':
     try:

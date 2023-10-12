@@ -5,6 +5,7 @@ from aiogram import Dispatcher as dp
 
 admin_router = Router()
 
+
 @admin_router.message(Command("test"))
 async def any_message(message: types.Message):
     await message.answer("Hello world")
