@@ -12,7 +12,7 @@ async def main():
 
     logger.info("bot is loading")
     config: Config = load_config()
-    ConnectDb.connection
+    #ConnectDb.connection
     logger.info("connect to BD")
     from aiogram.fsm.storage.memory import MemoryStorage
     storage = MemoryStorage()
