@@ -2,8 +2,6 @@ from dotenv import load_dotenv
 from dataclasses import dataclass
 import os
 
-from sqlalchemy.dialects.postgresql import asyncpg
-
 load_dotenv()
 
 
@@ -39,13 +37,3 @@ def load_config():
             password=os.getenv("DB_PASS")
         )
     )
-
-
-class ConnectDb:
-    config: Config = load_config()
-
-    async def connection(self):
-        await asyncpg.connect(f"postgresql://{self.config.db.user}:"
-                              f"{self.config.db.password}@"
-                              f"{self.config.db.host}/"
-                              f"{self.config.db.db_name}")

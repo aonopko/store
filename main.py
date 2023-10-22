@@ -5,7 +5,7 @@ import asyncio
 from loguru import logger
 from settings import Config, load_config
 from handlers import router_list
-from settings import ConnectDb
+
 
 
 async def main():
